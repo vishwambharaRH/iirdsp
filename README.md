@@ -333,7 +333,4 @@ make
 ## License
 
 MIT / BSD-style (to be finalized).
-
-```
-::contentReference[oaicite:0]{index=0}
 ```
