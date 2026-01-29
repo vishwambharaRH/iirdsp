@@ -1,0 +1,10 @@
+/Users/vishwam/VSCode/iirdsp/build/CMakeFiles/iirdsp_core.dir
+/Users/vishwam/VSCode/iirdsp/build/CMakeFiles/ecg_desktop.dir
+/Users/vishwam/VSCode/iirdsp/build/CMakeFiles/test_impulse.dir
+/Users/vishwam/VSCode/iirdsp/build/CMakeFiles/test.dir
+/Users/vishwam/VSCode/iirdsp/build/CMakeFiles/edit_cache.dir
+/Users/vishwam/VSCode/iirdsp/build/CMakeFiles/rebuild_cache.dir
+/Users/vishwam/VSCode/iirdsp/build/CMakeFiles/list_install_components.dir
+/Users/vishwam/VSCode/iirdsp/build/CMakeFiles/install.dir
+/Users/vishwam/VSCode/iirdsp/build/CMakeFiles/install/local.dir
+/Users/vishwam/VSCode/iirdsp/build/CMakeFiles/install/strip.dir

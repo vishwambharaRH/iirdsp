@@ -1,0 +1,2 @@
+/usr/bin/ar qc libiirdsp_core.a CMakeFiles/iirdsp_core.dir/src/sos.c.o CMakeFiles/iirdsp_core.dir/src/butter.c.o CMakeFiles/iirdsp_core.dir/src/notch.c.o
+/usr/bin/ranlib libiirdsp_core.a
