@@ -1,50 +1,83 @@
-I did this because of one code sample that I used in Python for the same, from scipy.signal.
-import numpy as np
-from scipy.signal import butter, filtfilt, iirnotch
+/**
+ * @file butter.h
+ * @brief Butterworth IIR filter design and initialization
+ */
 
-# -----------------------------
-# Parameters
-# -----------------------------
-Fs = 500.0  # Sampling frequency (Hz)
-ecg = np.loadtxt("ecg_dataset.txt")
+#ifndef IIRDSP_BUTTER_H
+#define IIRDSP_BUTTER_H
 
-# -----------------------------
-# Filter design
-# -----------------------------
-def bandpass(low, high, fs, order=4):
-    nyq = fs / 2
-    b, a = butter(order, [low/nyq, high/nyq], btype='band')
-    return b, a
+#include "config.h"
+#include "sos.h"
 
-def lowpass(cutoff, fs, order=2):
-    nyq = fs / 2
-    b, a = butter(order, cutoff/nyq, btype='low')
-    return b, a
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-def highpass(cutoff, fs, order=2):
-    nyq = fs / 2
-    b, a = butter(order, cutoff/nyq, btype='high')
-    return b, a
+/**
+ * Design a Butterworth low-pass filter
+ *
+ * Computes filter coefficients via:
+ *   1. Analog Butterworth prototype (s-domain)
+ *   2. Bilinear transform with pre-warping
+ *   3. Pole/zero pairing into SOS
+ *   4. Direct Form II Transposed form
+ *
+ * Equivalent to scipy.signal.butter(order, cutoff_hz/fs_hz*2, btype='low', output='sos')
+ *
+ * @param f Filter structure to initialize
+ * @param order Filter order (analog prototype). Max order is IIRDSP_MAX_SECTIONS * 2.
+ * @param cutoff_hz Cutoff frequency (Hz)
+ * @param fs_hz Sampling frequency (Hz)
+ * @return 0 on success, negative error code on failure
+ */
+int butter_lowpass_init(
+    iirdsp_filter_t* f,
+    int order,
+    iirdsp_real cutoff_hz,
+    iirdsp_real fs_hz
+);
 
-# -----------------------------
-# PQRST separation
-# -----------------------------
-b_pqrst, a_pqrst = bandpass(0.5, 40, Fs)
-pqrst = filtfilt(b_pqrst, a_pqrst, ecg)
+/**
+ * Design a Butterworth high-pass filter
+ *
+ * Equivalent to scipy.signal.butter(order, cutoff_hz/fs_hz*2, btype='high', output='sos')
+ *
+ * @param f Filter structure to initialize
+ * @param order Filter order (analog prototype). Max order is IIRDSP_MAX_SECTIONS * 2.
+ * @param cutoff_hz Cutoff frequency (Hz)
+ * @param fs_hz Sampling frequency (Hz)
+ * @return 0 on success, negative error code on failure
+ */
+int butter_highpass_init(
+    iirdsp_filter_t* f,
+    int order,
+    iirdsp_real cutoff_hz,
+    iirdsp_real fs_hz
+);
 
-# -----------------------------
-# Artefact separation
-# -----------------------------
-b_base, a_base = lowpass(0.5, Fs)
-baseline = filtfilt(b_base, a_base, ecg)
+/**
+ * Design a Butterworth band-pass filter
+ *
+ * Band-pass transformation produces 2*order poles.
+ * Equivalent to scipy.signal.butter(order, [f_low/fs_hz*2, f_high/fs_hz*2], btype='band', output='sos')
+ *
+ * @param f Filter structure to initialize
+ * @param order Filter order (analog prototype). Max order is IIRDSP_MAX_SECTIONS (band-pass produces 2*order poles).
+ * @param f_low_hz Low cutoff frequency (Hz)
+ * @param f_high_hz High cutoff frequency (Hz)
+ * @param fs_hz Sampling frequency (Hz)
+ * @return 0 on success, negative error code on failure
+ */
+int butter_bandpass_init(
+    iirdsp_filter_t* f,
+    int order,
+    iirdsp_real f_low_hz,
+    iirdsp_real f_high_hz,
+    iirdsp_real fs_hz
+);
 
-b_emg, a_emg = highpass(40, Fs)
-emg = filtfilt(b_emg, a_emg, ecg)
+#ifdef __cplusplus
+}
+#endif
 
-b_notch, a_notch = iirnotch(50, 30, Fs)
-powerline = filtfilt(b_notch, a_notch, ecg)
-
-The above code was intended to process an ECG, but the writer of the code was unaware that data could be in a .dat or a .csv format. 
-Hence, in order to miniaturize this code and process it on an ESP or some other microcontroller, it would be highly convenient to have actual proper code instead of this high-level Python BS. 
-
-So I wanted to build this library up from scratch, as I felt it would not only help my Capstone cause, but also make me experienced enough in building proper libraries.
+#endif /* IIRDSP_BUTTER_H */
