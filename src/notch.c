@@ -13,7 +13,7 @@
 /**
  * Design a digital notch filter (second-order IIR)
  *
- * Standard second-order IIR notch design:
+ * Standard second-order IIR notch design matching scipy.signal.iirnotch:
  *   - Center at f0_hz
  *   - Bandwidth determined by Q factor
  *   - Direct Form II Transposed implementation
@@ -44,21 +44,23 @@ int notch_filter_init(
     
     /* Bandwidth parameter */
     iirdsp_real alpha = sin(w0) / (2.0 * Q);
+    iirdsp_real cos_w0 = cos(w0);
 
-    /* Notch filter coefficients (normalized to b0) */
-    iirdsp_real b0 = 1.0 + alpha;
-    iirdsp_real b1 = -2.0 * cos(w0);
-    iirdsp_real b2 = 1.0 - alpha;
-    iirdsp_real a1 = b1;  /* Same as numerator */
-    iirdsp_real a2 = (1.0 - alpha);
+    /* Notch filter coefficients (before normalization) */
+    iirdsp_real b0 = 1.0;
+    iirdsp_real b1 = -2.0 * cos_w0;
+    iirdsp_real b2 = 1.0;
+    iirdsp_real a0 = 1.0 + alpha;
+    iirdsp_real a1 = -2.0 * cos_w0;
+    iirdsp_real a2 = 1.0 - alpha;
 
-    /* Normalize coefficients */
+    /* Normalize coefficients by a0 */
     f->num_sections = 1;
-    f->sections[0].b0 = b0 / b0;      /* = 1.0 */
-    f->sections[0].b1 = b1 / b0;
-    f->sections[0].b2 = b2 / b0;
-    f->sections[0].a1 = a1 / b0;
-    f->sections[0].a2 = a2 / b0;
+    f->sections[0].b0 = b0 / a0;
+    f->sections[0].b1 = b1 / a0;
+    f->sections[0].b2 = b2 / a0;
+    f->sections[0].a1 = a1 / a0;
+    f->sections[0].a2 = a2 / a0;
     f->sections[0].z1 = 0.0;
     f->sections[0].z2 = 0.0;
 
